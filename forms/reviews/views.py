@@ -1,3 +1,4 @@
+from typing import Any
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.views import View
@@ -15,7 +16,6 @@ class ReviewSubmitView(CreateView):
     success_url = "/thank-you"
 
 
-
 class ThankYouView(TemplateView):
     template_name = "reviews/thank_you.html"
 
@@ -30,17 +30,20 @@ class ReviewDetailView(DetailView):
     template_name = "reviews/review_detail.html"
     model = Review
 
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        loaded_review = self.object
+        request = self.request
+        fav_id = request.session.get("favorite_review")
+        context["is_favorite"] = fav_id == str(loaded_review.id)
+        return context
 
-    # def post(self, request):
-    #     form = ReviewForm(request.POST)
 
-    #     if form.is_valid():
-    #         form.save()
-    #         return HttpResponseRedirect("/thank-you")
+class AddFavoriteView(View):
+    def get(self, request):
+        pass
 
-    #     form = ReviewForm()
-    #     return render(
-    #         request,
-    #         "reviews/review.html",
-    #         {"form": form},
-    #     )
+    def post(self, request):
+        review_id = request.POST.get("review_id")
+        request.session["favorite_review"] = review_id
+        return HttpResponseRedirect("/reviews/" + review_id)
