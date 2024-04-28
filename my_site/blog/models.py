@@ -18,7 +18,7 @@ class Post(models.Model):
     date = models.DateField(null=False)
     author = models.ForeignKey(Author(), on_delete=models.CASCADE, null=False)
     slug = models.SlugField(max_length=100, null=False, db_index=True)
-    image = models.ImageField(upload_to="blog/static/blog/images/")
+    image = models.ImageField(upload_to="images")
     excerpt = models.TextField(null=False)
 
     def __str__(self):
@@ -26,5 +26,4 @@ class Post(models.Model):
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-        print(self.image)
         super(Post, self).save(*args, **kwargs)
