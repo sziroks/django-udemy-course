@@ -18,6 +18,15 @@
             </div>
         </article>
     </section>
+    {% if read_later %}
+        <p>This post is selected to be read later</p>
+    {% else %}
+        <form action="read-later" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="id_post" value="{{ post.id_post }}" />
+            <button>Read Later</Button>
+        </form>
+    {% endif %}
 
     <main>
         <p>
