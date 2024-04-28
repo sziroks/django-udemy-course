@@ -28,16 +28,15 @@ class PostDetailView(View):
         post = Post.objects.get(slug=slug)
         id_post = post.id_post
         read_later = str(id_post) == request.session.get("read_later")
-
+        context = self.get_context(
+            post,
+            CommentForm(),
+            read_later,
+        )
         return render(
             request,
             "blog/post-detail.html",
-            context={
-                "post": post,
-                "comment_form": CommentForm(),
-                "read_later": read_later,
-                "comments":post.comments.all().order_by("-id_comment"),
-            },
+            context=context,
         )
 
     def post(self, request, slug):
@@ -51,16 +50,26 @@ class PostDetailView(View):
 
         id_post = post.id_post
         read_later = str(id_post) == request.session.get("read_later")
+        context = self.get_context(
+            post,
+            comment_form,
+            read_later,
+        )
         return render(
             request,
             "blog/post-detail.html",
-            context={
-                "post": post,
-                "comment_form": comment_form,
-                "read_later": read_later,
-                "comments":post.comments.all().order_by("-id_comment"),
-            },
+            context=context,
         )
+
+    @staticmethod
+    def get_context(post, comment_form, read_later):
+        context = {
+            "post": post,
+            "comment_form": comment_form,
+            "read_later": read_later,
+            "comments": post.comments.all().order_by("-id_comment"),
+        }
+        return context
 
 
 class ReadLaterView(View):
