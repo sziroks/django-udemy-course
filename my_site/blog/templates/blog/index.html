@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    My blog
+{% endblock %}
+
+{% block css_files %}
+    <link rel="stylesheet" href="{% static "blog/post.css" %}" />
+    <link rel="stylesheet" href="{% static "blog/index.css" %}" />
+{% endblock%}
+
+{% block content %}
+
+    <section id="welcome">
+        <header>
+            <img src="{% static "blog/images/my-photo.jpg" %}" alt="Oskar - The Author of this blog" />
+            <h1>TO JA</h1>
+        </header>
+        <p>Hi, I'm Oskar and I love to blog about tech and the world!</p>
+    </section>
+
+    <section id="latest-posts">
+        <h2>My latest posts</h2>
+        <ul>
+            {% for post in posts %}
+                {% include "blog/includes/post.html" %}
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section id="about">
+        <h2>About me</h2>
+        <p>Lubie programowac bo mowie w jezyku kąkutera :D</p>
+    </section>
+{% endblock %}
