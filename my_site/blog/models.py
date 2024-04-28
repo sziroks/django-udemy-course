@@ -27,3 +27,10 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(Post, self).save(*args, **kwargs)
+
+class Comment(models.Model):
+    id_comment = models.AutoField(primary_key=True)
+    id_post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False, related_name="comments")
+    user_name = models.CharField(max_length=100)
+    user_email = models.EmailField()
+    text = models.TextField(max_length=400)

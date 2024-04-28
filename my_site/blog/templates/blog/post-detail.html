@@ -8,6 +8,15 @@
 {% endblock %}
 
 {% block content %}
+
+    {% if comment_form.errors %}
+        <div id="alert">
+            <h2>There was a problem saving your comment</h2>
+            <p>Please check the comment form below the post</p>
+            <a href="#comment_form">Fix!</a>
+        </div>
+    {% endif %}
+
     <section id="summary">
         <h2>{{ post.title }}</h2>
         <article>
@@ -21,16 +30,41 @@
     {% if read_later %}
         <p>This post is selected to be read later</p>
     {% else %}
-        <form action="read-later" method="POST">
+        <form id="read-later-form" action="read-later" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id_post" value="{{ post.id_post }}" />
-            <button>Read Later</Button>
+            <button>Read Later</button>
         </form>
     {% endif %}
 
     <main>
-        <p>
             {{ post.content|linebreaks }}
-        </p>
     </main>
+
+    <section id="comments">
+        <ul>
+            {% for comment in comments %}
+                <li>
+                    <h2>{{ comment.user_name }}</h2>
+                    <p>{{ comment.text }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+
+    </section>
+
+    <section id="comment-form">
+        <h2>Your comment</h2>
+        <form action="{% url "post-detail-page" post.slug %}" method="POST">
+            {% csrf_token %}
+                {% for form_field in comment_form %}
+                    <div class="form-control {% if form_field.errors %} invalid {% endif %}">
+                        {{ form_field.label_tag }}
+                        {{ form_field }}
+                        {{ form_field.errors }}
+                    </div>
+                {% endfor %}
+            <button type="submit">Comment post</button>
+        </form>
+    </section>
 {% endblock %}

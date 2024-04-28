@@ -5,8 +5,10 @@ from django.shortcuts import get_object_or_404
 from datetime import date
 from django.views import View
 from django.views.generic import ListView, DetailView
+from django.urls import reverse
 
 from .models import Post
+from .forms import CommentForm
 
 
 class StartingPageView(View):
@@ -21,19 +23,45 @@ class AllPostsView(ListView):
     context_object_name = "all_posts"
 
 
-class PostDetailView(DetailView):
-    template_name = "blog/post-detail.html"
-    model = Post
+class PostDetailView(View):
+    def get(self, request, slug):
+        post = Post.objects.get(slug=slug)
+        id_post = post.id_post
+        read_later = str(id_post) == request.session.get("read_later")
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        selected_post = self.object.id_post
-        request = self.request
-        rl_post = request.session.get("read_later")
-        context["read_later"] = str(selected_post) == rl_post
-        print(str(selected_post), rl_post)
+        return render(
+            request,
+            "blog/post-detail.html",
+            context={
+                "post": post,
+                "comment_form": CommentForm(),
+                "read_later": read_later,
+                "comments":post.comments.all().order_by("-id_comment"),
+            },
+        )
 
-        return context
+    def post(self, request, slug):
+        comment_form = CommentForm(request.POST)
+        post = Post.objects.get(slug=slug)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.id_post = post
+            comment.save()
+            return HttpResponseRedirect(reverse("post-detail-page", args=[slug]))
+
+        id_post = post.id_post
+        read_later = str(id_post) == request.session.get("read_later")
+        return render(
+            request,
+            "blog/post-detail.html",
+            context={
+                "post": post,
+                "comment_form": comment_form,
+                "read_later": read_later,
+                "comments":post.comments.all().order_by("-id_comment"),
+            },
+        )
+
 
 class ReadLaterView(View):
     def post(self, request):
